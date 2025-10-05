@@ -1,0 +1,463 @@
+{
+  "name": "Resume_Finder",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -176,
+        -1168
+      ],
+      "id": "2ffb2ce4-1074-41f7-9300-dfac33f4cb13",
+      "name": "Download",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "GFq4L7hRVe4ncs1Z",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1LzMHx-tKrelbNdCOM2tuiGcUW1pueU13",
+          "mode": "list",
+          "cachedResultName": "Resume Finder Bot",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1LzMHx-tKrelbNdCOM2tuiGcUW1pueU13"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        -1168
+      ],
+      "id": "656afbb0-6b23-480e-a37c-2aca5fc55240",
+      "name": "Trigger Bot",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "GFq4L7hRVe4ncs1Z",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": ".pdf",
+        "limit": 75,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1LzMHx-tKrelbNdCOM2tuiGcUW1pueU13",
+            "mode": "list",
+            "cachedResultName": "Resume Finder Bot",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1LzMHx-tKrelbNdCOM2tuiGcUW1pueU13"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -464,
+        -1168
+      ],
+      "id": "615b804d-8a98-4f5f-8b64-3480af684842",
+      "name": "Files From resume finder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "GFq4L7hRVe4ncs1Z",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -352,
+        -224
+      ],
+      "id": "2e0bdce5-9cbe-40a9-a946-792053971538",
+      "name": "Telegram Trigger",
+      "webhookId": "60759d26-e0db-476a-9992-d46ab029b961",
+      "credentials": {
+        "telegramApi": {
+          "id": "rvCPxnVgag2V7RQx",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a resume finder assistant. Answer ONLY using the provided knowledge base.\nIf the knowledge base does not contain the answer, say exactly:\n\"Sorry! I can't find relevant information from the knowledge base.\"\nRespond concisely (4–6 lines). No greetings, no small talk, no explanations of your rules.\nUser query:{{$json.userText}}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        64,
+        -224
+      ],
+      "id": "eecf339b-66bc-4608-9ba3-934628b1e522",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        -224
+      ],
+      "id": "704e9800-3223-46ed-afff-c38fa8925f1c",
+      "name": "Send a text message",
+      "webhookId": "133b72c2-e14b-4cbc-9416-926f7149123a",
+      "credentials": {
+        "telegramApi": {
+          "id": "rvCPxnVgag2V7RQx",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "dimensions": 1536
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        336,
+        224
+      ],
+      "id": "e45f8f60-c8b4-4d11-84a9-0cfe5e933f30",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "OvQkcvgFOY5mUqhG",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -32,
+        16
+      ],
+      "id": "3cd12933-d7f7-4dca-982e-5e2005b82514",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "OvQkcvgFOY5mUqhG",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "{{ String(   $('Telegram Trigger').item.json.message?.chat?.id    || $('Telegram Trigger').item.json.message?.from?.id    || $json.chat_id ) }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        48
+      ],
+      "id": "5eb40d1c-5af1-43ae-834c-7d1dafda3afc",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "legal",
+          "mode": "list",
+          "cachedResultName": "legal"
+        },
+        "includeDocumentMetadata": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        16
+      ],
+      "id": "e8e84cd2-d31b-4502-b27b-f6cc1d6ceace",
+      "name": "Pine meeting Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "27E2ct9YptpAqVVa",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "legal",
+          "mode": "list",
+          "cachedResultName": "legal"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        -1168
+      ],
+      "id": "ade8edcf-751d-4b22-bc51-b64684053494",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "27E2ct9YptpAqVVa",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        384,
+        -976
+      ],
+      "id": "bbf09ff1-ff54-4a1f-b80f-105aec11e23b",
+      "name": "Default Data Loader1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        -960
+      ],
+      "id": "14f8be39-b540-4bf1-8b7a-163829e02162",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "OvQkcvgFOY5mUqhG",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 100,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -768
+      ],
+      "id": "89fb5b66-b33f-492a-9483-d2cc545da274",
+      "name": "Recursive Character Text Splitter"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Download": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Bot": {
+      "main": [
+        [
+          {
+            "node": "Files From resume finder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Files From resume finder": {
+      "main": [
+        [
+          {
+            "node": "Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pine meeting Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pine meeting Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader1",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "13596b80-0c51-4134-875d-eed1bb06cae9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06f505f7d9bf97258fc4003d0707888fccc731945db7cdd16b67af9477ae21c3"
+  },
+  "id": "qaJv12M9u1hJKBkv",
+  "tags": []
+}
