@@ -118,3 +118,17 @@ This repository contains workflows and resources to build domain-specific chatbo
 4. Upload the PDF to the specified Drive folder.
 
 5. Start chatting on Telegram!
+
+## 📌 Note:
+
+You can refer this link for n8n and ngrok integration
+https://youtu.be/dMH6q_NkY9w?si=R3HHTO7cGvtgGJ6f
+
+While setting environment variables for WEBHOOK follow the below steps
+* On Linux and Mac, you can set environment variables directly WEBHOOK_URL=[Your static url from ngrok] n8n
+* On Windows you have to set the variable like this in the CMD prompt:
+```
+  set WEBHOOK_URL=[Your new static URL from ngrok ]
+  
+  n8n start
+```
